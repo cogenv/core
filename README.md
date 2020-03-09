@@ -1,8 +1,8 @@
 ## @cogenv/core
 
-**@cogenv/core** es un manejador de variables de entorno, y este paquete pertenece a su paquete principal `cogenv`, pero si desea utilizar solo este paquete, aqui abajo tendras la documentacion, y si busca algo mas robusto y completo, te recomendamos utilizar el paquete principal de `cogenv`.
+**@cogenv/core** is an environment variable manager, and this package belongs to its main `cogenv` package, but if you want to use only this package, here below you will have the documentation, and if you are looking for something more robust and complete, we recommend using the main `cogenv` package.
 
-## 📦 Installed
+## 📦 Installation
 
 ```bash
 npm i --save @cogenv/core
@@ -37,7 +37,7 @@ console.log(data);
 */
 ```
 
-Si usted quiere agregar tipos a los datos, le redomendamos usar el paquete principal de `cogenv`.
+If you want to add types to the data, we recommend using the main `cogenv` package.
 
 ### Options
 
@@ -49,7 +49,7 @@ Si usted quiere agregar tipos a los datos, le redomendamos usar el paquete princ
 
 ### Customize path
 
-Para personalizar el archivo de variable de entorno es muy sencillo con `@cogenv/core`, por defecto es _`.env`_
+To customize the environment variable file it is very easy with `@cogenv/core`, by default it is _`.env`_.
 
 ```js
 const CogenvConfig = require('@cogenv/core');
@@ -61,9 +61,9 @@ CogenvConfig({
 
 ### Interpolate or expand
 
-Para expandir las variables entre ellas, es de la siguiente manera !
+To expand the variables between them, it is as follows !
 
-Para interpolar se utiliza lo siguiente **`${`variable_name`}`**
+To interpolate it is used the following **`${`variable_name`}`**
 
 ```bash
 # Application Data !
@@ -73,7 +73,7 @@ APP_URL = http://website.com:${APP_PORT}
 # Return: http://website.com:3000
 ```
 
-Para interpolar tenemos unas opciones !
+To interpolate we have some options !
 
 | name              | type     | default |
 | ----------------- | -------- | ------- |
@@ -89,7 +89,7 @@ CogenvConfig({
 });
 ```
 
-En el archivo de variables de entorno seria asi !
+In the environment variables file it would look like this !
 
 ```bash
 # Application Data !
@@ -101,7 +101,7 @@ APP_URL = http://website.com:%{APP_PORT}
 
 ## ⭐ Support for
 
-Sass-colors is an open source project licensed by [MIT](LICENSE). You can grow thanks to the sponsors and the support of the amazing sponsors. If you want to join them, [contact me here](mailto:helloyonicb@gmail.com).
+`@cogenv/core` is an open source project licensed by [MIT](LICENSE). You can grow thanks to the sponsors and the support of the amazing sponsors. If you want to join them, [contact me here](mailto:helloyonicb@gmail.com).
 
 ## 🎩 Stay in touch
 
@@ -110,8 +110,8 @@ Sass-colors is an open source project licensed by [MIT](LICENSE). You can grow t
 
 ## Contributors
 
-Gracias a los personas maravillosas que colaboran conmigo !
+Thanks to the wonderful people who collaborate with me !
 
 ## 📜 License
 
-@cogenv/core under [License MIT.](LICENSE)
+`@cogenv/core` under [License MIT.](LICENSE)
