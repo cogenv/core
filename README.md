@@ -108,6 +108,10 @@ Sass-colors is an open source project licensed by [MIT](LICENSE). You can grow t
 -  Author [Yoni Calsin](https://github.com/yoicalsin)
 -  Twitter [Yoni Calsin](https://twitter.com/yoicalsin)
 
+## Contributors
+
+Gracias a los personas maravillosas que colaboran conmigo !
+
 ## License
 
 @cogenv/core under [License MIT](LICENSE)
