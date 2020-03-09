@@ -158,9 +158,6 @@ const Config = (options: CogenvOptions = {}) => {
    }
 };
 
-export { Config, CogenvParse };
-export default Config;
-
 module.exports.Config = Config;
 module.exports.CogenvParse = CogenvParse;
 module.exports = Config;
