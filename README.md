@@ -2,13 +2,13 @@
 
 **@cogenv/core** es un manejador de variables de entorno, y este paquete pertenece a su paquete principal `cogenv`, pero si desea utilizar solo este paquete, aqui abajo tendras la documentacion, y si busca algo mas robusto y completo, te recomendamos utilizar el paquete principal de `cogenv`.
 
-## Installed
+## 📦 Installed
 
 ```bash
 npm i --save @cogenv/core
 ```
 
-## Usage
+## ▶️ Usage
 
 Created `.cogenv` or `.env` file !
 
@@ -112,6 +112,6 @@ Sass-colors is an open source project licensed by [MIT](LICENSE). You can grow t
 
 Gracias a los personas maravillosas que colaboran conmigo !
 
-## License
+## 📜 License
 
-@cogenv/core under [License MIT](LICENSE)
+@cogenv/core under [License MIT.](LICENSE)
