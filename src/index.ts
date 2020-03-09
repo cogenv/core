@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 const NEWLINE = '\n';
 let PARSE_MATCH_LINE = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/;
@@ -84,11 +84,11 @@ export const Config = (options: CogenvOptions = {}) => {
       ...options,
    };
 
-   let cogenvPath = path.resolve(process.cwd(), options.path);
+   let cogenvPath = resolve(process.cwd(), options.path);
    let encoding = options.encoding;
 
    try {
-      let parsed: any = fs.readFileSync(cogenvPath, { encoding });
+      let parsed: any = readFileSync(cogenvPath, { encoding });
       parsed = parse(parsed, options.matchLine);
       if (options.matchLine == 'normal') {
          Object.keys(parsed).forEach(k => {
