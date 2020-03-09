@@ -25,7 +25,10 @@ const defaultOptions: CogenvOptions = {
    matchLine: 'normal',
 };
 
-const parse = (source: string, matchLine: 'all' | 'normal' = 'normal') => {
+export const parse = (
+   source: string,
+   matchLine: 'all' | 'normal' = 'normal',
+) => {
    const payload = {};
    const arr = source.toString().split(NEWLINES_MATCH);
 
