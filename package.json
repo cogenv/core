@@ -1,0 +1,21 @@
+{
+   "name": "@cogenv/core",
+   "version": "1.0.0",
+   "description": "Variable envirements",
+   "main": "dist/index.js",
+   "scripts": {
+      "dev": "tsc -w",
+      "build": "tsc"
+   },
+   "repository": {
+      "type": "git",
+      "url": "https://github.com/@cogenv-core"
+   },
+   "keywords": [
+      "dotenv",
+      "cogenv",
+      "envirements"
+   ],
+   "author": "Yoni Calsin <helloyonicb@gmail.com>",
+   "license": "MIT"
+}
