@@ -17,20 +17,31 @@ interface CogenvOptions {
    path?: '.env';
    encoding?: 'utf8';
    matchLine?: 'all' | 'normal';
+   interpolatePrefix?: string;
 }
 
 const defaultOptions: CogenvOptions = {
    path: '.env',
    encoding: 'utf8',
    matchLine: 'normal',
+   interpolatePrefix: '$',
 };
 
 export const parse = (
    source: string,
    matchLine: 'all' | 'normal' = 'normal',
+   interpolatePrefix?: string,
 ) => {
    const payload = {};
    const arr = source.toString().split(NEWLINES_MATCH);
+   const RegexInterpolate = new RegExp(
+      `(.?\\${interpolatePrefix}{?(?:[a-zA-Z0-9_]+)?}?)`,
+      'g',
+   );
+   const RegexInterpolateParts = new RegExp(
+      `(.?)\\${interpolatePrefix}{?([a-zA-Z0-9_]+)?}?`,
+      'g',
+   );
 
    const toValue = (val: string): string => {
       const end = val.length - 1;
@@ -49,7 +60,46 @@ export const parse = (
          // remove surrounding whitespace
          val = val.trim();
       }
+      val = parseInterpolate(val);
       return val;
+   };
+
+   const parseInterpolate = (source: string) => {
+      if (typeof source !== 'string') {
+         return source;
+      }
+
+      var matches: any[] = source.match(RegexInterpolate) || [];
+
+      if (matches.length > 0) {
+         return matches.reduce(function(newEnv, match) {
+            var parts = RegexInterpolateParts.exec(match);
+            var prefix = parts[1];
+
+            var value, replacePart;
+
+            if (prefix === '\\') {
+               replacePart = parts[0];
+               value = replacePart.replace(
+                  `\\${interpolatePrefix}`,
+                  interpolatePrefix,
+               );
+            } else {
+               var key = parts[2];
+               replacePart = parts[0].substring(prefix.length);
+
+               value = payload[key];
+               // process.env value 'wins' over .env file's value
+
+               // Resolve recursive interpolations
+               value = parseInterpolate(value);
+            }
+
+            return newEnv.replace(replacePart, value);
+         }, source);
+      } else {
+         return source;
+      }
    };
 
    for (const [k, v] of arr.entries()) {
@@ -92,7 +142,7 @@ export const Config = (options: CogenvOptions = {}) => {
 
    try {
       let parsed: any = readFileSync(cogenvPath, { encoding });
-      parsed = parse(parsed, options.matchLine);
+      parsed = parse(parsed, options.matchLine, options.interpolatePrefix);
       if (options.matchLine == 'normal') {
          Object.keys(parsed).forEach(k => {
             cogenv.env[k] = parsed[k];
