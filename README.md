@@ -1,5 +1,7 @@
 ## @cogenv/core
 
+**@cogenv/core** es un manejador de variables de entorno, y este paquete pertenece a su paquete principal `cogenv`, pero si desea utilizar solo este paquete, aqui abajo tendras la documentacion, y si busca algo mas robusto y completo, te recomendamos utilizar el paquete principal de `cogenv`.
+
 ## Installed
 
 ```bash
