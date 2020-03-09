@@ -1,6 +1,8 @@
 # Folders
 /.vscode
-/.src
+/src
+
+/changelog.config.js
 
 # Files
 .env
