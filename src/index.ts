@@ -158,5 +158,6 @@ const Config = (options: CogenvOptions = {}) => {
    }
 };
 
-exports.CogenvParse = CogenvParse;
-export = { CogenvParse, Config };
+export { CogenvParse, Config };
+
+export default Config;
