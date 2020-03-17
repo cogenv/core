@@ -25,6 +25,7 @@ const defaultOptions: CogenvOptions = {
    matchLine: 'normal',
    interpolatePrefix: '$',
 };
+let database = {};
 
 // Designed the variables a value
 global.cogenv = process;
@@ -130,6 +131,7 @@ export const Parse = (
       }
    }
 
+   database = payload;
    return payload;
 };
 
@@ -153,7 +155,10 @@ export const Config = (options: CogenvOptions = {}) => {
    }
 };
 
-export const Use = () => {};
+export const Use = (fn: Function) => {
+   const data = fn(database) || {};
+   database = Merge(database, data);
+};
 
 export const Cogenv = {
    Parse,
