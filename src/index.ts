@@ -154,4 +154,10 @@ export const Config = (options: CogenvOptions = {}) => {
 
 export const Use = () => {};
 
-export default Config;
+export const Cogenv = {
+   Parse,
+   Config,
+   Use,
+};
+
+export default Cogenv;
