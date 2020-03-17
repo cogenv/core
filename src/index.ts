@@ -27,7 +27,7 @@ const defaultOptions: CogenvOptions = {
    interpolatePrefix: '$',
 };
 
-const CogenvParse = (
+export const Parse = (
    source: string,
    matchLine: 'all' | 'normal' = 'normal',
    interpolatePrefix?: string,
@@ -131,7 +131,7 @@ const CogenvParse = (
    return payload;
 };
 
-const Config = (options: CogenvOptions = {}) => {
+export const Config = (options: CogenvOptions = {}) => {
    options = {
       ...defaultOptions,
       ...options,
@@ -142,11 +142,7 @@ const Config = (options: CogenvOptions = {}) => {
 
    try {
       let parsed: any = readFileSync(cogenvPath, { encoding });
-      parsed = CogenvParse(
-         parsed,
-         options.matchLine,
-         options.interpolatePrefix,
-      );
+      parsed = Parse(parsed, options.matchLine, options.interpolatePrefix);
       if (options.matchLine == 'normal') {
          Object.keys(parsed).forEach(k => {
             cogenv.env[k] = parsed[k];
@@ -157,7 +153,5 @@ const Config = (options: CogenvOptions = {}) => {
       return { error: e };
    }
 };
-
-export { CogenvParse, Config };
 
 export default Config;
