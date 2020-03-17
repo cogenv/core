@@ -152,4 +152,6 @@ export const Config = (options: CogenvOptions = {}) => {
    }
 };
 
+export const Use = () => {};
+
 export default Config;
