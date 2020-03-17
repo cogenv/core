@@ -26,6 +26,7 @@ const defaultOptions: CogenvOptions = {
    interpolatePrefix: '$',
 };
 let database = {};
+let allPayload = {};
 
 // Designed the variables a value
 global.cogenv = process;
@@ -91,7 +92,8 @@ export const Parse = (
                var key = parts[2];
                replacePart = parts[0].substring(prefix.length);
 
-               value = payload[key];
+               value = allPayload[key] || payload[key];
+
                // process.env value 'wins' over .env file's value
 
                // Resolve recursive interpolations
@@ -109,25 +111,22 @@ export const Parse = (
       const keyValueArr = v.match(PARSE_MATCH_LINE);
 
       if (keyValueArr != null) {
-         const key = keyValueArr[1];
-         let val = keyValueArr[2] || '';
-         1;
-
-         val = toValue(val);
-
-         payload[key] = val;
+         let [z, key, value] = keyValueArr;
+         value = toValue(value);
+         payload[key] = value;
+         allPayload[key] = value;
       } else {
          let containType: any = /^\s*([\w.-]+)[:|@]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
          containType = v.match(containType);
          if (containType && matchLine == 'all') {
             let [z, key, type, value] = containType;
             value = toValue(value);
+            allPayload[key] = value;
             key = `${key}@${type}`;
             payload[key] = value;
          }
       }
    }
-   database = payload;
    return payload;
 };
 
@@ -140,6 +139,8 @@ export const Config = (options: CogenvOptions = {}) => {
    try {
       let parsed: any = readFileSync(cogenvPath, { encoding });
       parsed = Parse(parsed, options.matchLine, options.interpolatePrefix);
+      database = parsed;
+      cogenv.env = Merge(cogenv.env, database);
       return { parsed };
    } catch (e) {
       return { error: e };
@@ -149,6 +150,7 @@ export const Config = (options: CogenvOptions = {}) => {
 export const Use = (fn: Function) => {
    const data = fn(database) || {};
    database = Merge(database, data);
+   cogenv.env = Merge(cogenv.env, database);
 };
 
 export const Cogenv = {
