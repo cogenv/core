@@ -108,9 +108,6 @@ export const Parse = (
    for (const v of arr) {
       const keyValueArr = v.match(PARSE_MATCH_LINE);
 
-      let containType: any = /^\s*([\w.-]+)[:|@]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
-      containType = v.match(containType);
-
       if (keyValueArr != null) {
          const key = keyValueArr[1];
          let val = keyValueArr[2] || '';
@@ -120,17 +117,16 @@ export const Parse = (
 
          payload[key] = val;
       } else {
+         let containType: any = /^\s*([\w.-]+)[:|@]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
+         containType = v.match(containType);
          if (containType && matchLine == 'all') {
-            let key = containType[1];
-            const type = containType[2];
-            let value = containType[3];
+            let [z, key, type, value] = containType;
             value = toValue(value);
-            key = key + '@' + type;
+            key = `${key}@${type}`;
             payload[key] = value;
          }
       }
    }
-
    database = payload;
    return payload;
 };
@@ -144,11 +140,6 @@ export const Config = (options: CogenvOptions = {}) => {
    try {
       let parsed: any = readFileSync(cogenvPath, { encoding });
       parsed = Parse(parsed, options.matchLine, options.interpolatePrefix);
-      if (options.matchLine == 'normal') {
-         Object.keys(parsed).forEach(k => {
-            cogenv.env[k] = parsed[k];
-         });
-      }
       return { parsed };
    } catch (e) {
       return { error: e };
