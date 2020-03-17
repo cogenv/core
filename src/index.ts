@@ -118,12 +118,14 @@ export const Parse = (
       } else {
          let containType: any = /^\s*([\w.-]+)[:|@]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
          containType = v.match(containType);
-         if (containType && matchLine == 'all') {
+         if (containType) {
             let [z, key, type, value] = containType;
             value = toValue(value);
             allPayload[key] = value;
-            key = `${key}@${type}`;
-            payload[key] = value;
+            if (matchLine == 'all') {
+               key = `${key}@${type}`;
+               payload[key] = value;
+            }
          }
       }
    }
@@ -147,8 +149,8 @@ export const Config = (options: CogenvOptions = {}) => {
    }
 };
 
-export const Use = (fn: Function) => {
-   const data = fn(database) || {};
+export const Use = <T>(fn: Function, options?: T) => {
+   const data = fn(database, options) || {};
    database = Merge(database, data);
    cogenv.env = Merge(cogenv.env, database);
 };
