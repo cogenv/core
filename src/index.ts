@@ -102,7 +102,7 @@ export const Parse = (
       }
    };
 
-   for (const [k, v] of arr.entries()) {
+   for (const v of arr) {
       const keyValueArr = v.match(PARSE_MATCH_LINE);
 
       let containType: any = /^\s*([\w.-]+)[:|@]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
