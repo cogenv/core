@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
+import { Merge } from 'merge-options-default';
 
 const NEWLINE = '\n';
 let PARSE_MATCH_LINE = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/;
@@ -132,10 +133,7 @@ export const Parse = (
 };
 
 export const Config = (options: CogenvOptions = {}) => {
-   options = {
-      ...defaultOptions,
-      ...options,
-   };
+   options = Merge(defaultOptions, options);
 
    let cogenvPath = resolve(process.cwd(), options.path);
    let encoding = options.encoding;
