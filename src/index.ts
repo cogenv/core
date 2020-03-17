@@ -2,18 +2,10 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { Merge } from 'merge-options-default';
 
-const NEWLINE = '\n';
-let PARSE_MATCH_LINE = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/;
-
-const RE_NEWLINES = /\\n/g;
-const NEWLINES_MATCH = /\n|\r|\r\n/;
-
+// Interfaces
 declare var global: {
    cogenv: NodeJS.Process;
 };
-
-global.cogenv = process;
-
 interface CogenvOptions {
    path?: '.env';
    encoding?: 'utf8';
@@ -21,12 +13,21 @@ interface CogenvOptions {
    interpolatePrefix?: string;
 }
 
+// Variables Data !
+const NEWLINE = '\n';
+let PARSE_MATCH_LINE = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/;
+
+const RE_NEWLINES = /\\n/g;
+const NEWLINES_MATCH = /\n|\r|\r\n/;
 const defaultOptions: CogenvOptions = {
    path: '.env',
    encoding: 'utf8',
    matchLine: 'normal',
    interpolatePrefix: '$',
 };
+
+// Designed the variables a value
+global.cogenv = process;
 
 export const Parse = (
    source: string,
