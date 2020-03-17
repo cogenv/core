@@ -12,6 +12,9 @@ interface CogenvOptions {
    matchLine?: 'all' | 'normal';
    interpolatePrefix?: string;
 }
+interface More {
+   [key: string]: any;
+}
 
 // Variables Data !
 const NEWLINE = '\n';
@@ -25,8 +28,8 @@ const defaultOptions: CogenvOptions = {
    matchLine: 'normal',
    interpolatePrefix: '$',
 };
-let database = {};
-let allPayload = {};
+let database: More = {};
+let allPayload: More = {};
 
 // Designed the variables a value
 global.cogenv = process;
@@ -36,7 +39,7 @@ export const Parse = (
    matchLine: 'all' | 'normal' = 'normal',
    interpolatePrefix?: string,
 ) => {
-   const payload = {};
+   const payload: More = {};
    const arr = source.toString().split(NEWLINES_MATCH);
    const RegexInterpolate = new RegExp(
       `(.?\\${interpolatePrefix}{?(?:[a-zA-Z0-9_]+)?}?)`,
@@ -118,13 +121,16 @@ export const Parse = (
       } else {
          let containType: any = /^\s*([\w.-]+)[:|@]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
          containType = v.match(containType);
+         if (matchLine == 'all') {
+            payload['_types'] = { ...payload._types };
+         }
          if (containType) {
             let [z, key, type, value] = containType;
             value = toValue(value);
             allPayload[key] = value;
             if (matchLine == 'all') {
                key = `${key}@${type}`;
-               payload[key] = value;
+               payload['_types'][key] = value;
             }
          }
       }
