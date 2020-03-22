@@ -22,7 +22,6 @@ interface More {
 
 interface Plugin {
    name: string;
-   author: string;
    version: string;
 }
 
@@ -55,7 +54,7 @@ let stat: Stat = {
 // Designed the variables a value
 global.cog = process;
 
-export const Parse = (
+const Parse = (
    source: string,
    { interpolatePrefix, types, objects }: ParseOptions,
 ) => {
@@ -178,7 +177,7 @@ export const Parse = (
    return payload;
 };
 
-export const Config = (options: CogenvOptions = {}) => {
+const Config = (options: CogenvOptions = {}) => {
    options = Merge(defaultOptions, options);
    const { path, encoding, types, objects, interpolatePrefix } = options;
 
@@ -199,24 +198,26 @@ export const Config = (options: CogenvOptions = {}) => {
    }
 };
 
-export const SetDatabase = (data: More) => {
+const SetDatabase = (data: More) => {
    database = Merge(database, data);
    cog.env = Merge(cog.env, database);
 };
 
-export const GetStat = () => stat;
+const GetStat = () => stat;
 
-export const Use = <T = any>(fn: Function, options?: T | Function) => {
+const Use = <T = any>(fn: Function, options?: T | Function) => {
    const register = (data: Plugin) => stat.plugins.push(data);
    !options && (options = register);
    const data = fn(database, options, register);
    data && SetDatabase(data);
 };
 
-export const Cogenv = {
+const Cogenv = {
    Parse,
    Config,
    Use,
 };
+
+export { Parse, Use, GetStat, Config };
 
 export default Cogenv;
