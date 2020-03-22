@@ -119,7 +119,7 @@ export const Parse = (
          payload[key] = value;
          allPayload[key] = value;
       } else {
-         let containType: any = /^\s*([\w.-]+)[:|@]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
+         let containType: any = /^\s*([\w.-]+)[:]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
          containType = v.match(containType);
          if (matchLine == 'all') {
             payload['_types'] = { ...payload._types };
@@ -128,6 +128,7 @@ export const Parse = (
             let [z, key, type, value] = containType;
             value = toValue(value);
             allPayload[key] = value;
+            payload[key] = value;
             if (matchLine == 'all') {
                key = `${key}@${type}`;
                payload['_types'][key] = value;
