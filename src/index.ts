@@ -20,6 +20,21 @@ interface More {
    [key: string]: any;
 }
 
+interface Plugin {
+   name: string;
+   author: string;
+}
+
+interface Stat {
+   initialized: boolean;
+   version: number | string;
+   author: {
+      name: string;
+      mail: string;
+   };
+   plugins?: Plugin[];
+}
+
 // Variables Data !
 const NEWLINE = '\n';
 let PARSE_MATCH_LINE = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/;
@@ -34,6 +49,15 @@ const defaultOptions: CogenvOptions = {
    objects: false,
 };
 let database: More = {};
+let stat: Stat = {
+   initialized: false,
+   version: '1.0.8',
+   plugins: [],
+   author: {
+      name: 'Yoni Calsin',
+      mail: 'helloyonicb@gmail.com',
+   },
+};
 
 // Designed the variables a value
 global.cog = process;
@@ -55,6 +79,9 @@ export const Parse = (
    );
 
    const toValue = (val: string): string => {
+      if (!val) {
+         return '';
+      }
       const end = val.length - 1;
       const isDoubleQuoted = val[0] === '"' && val[end] === '"';
       const isSingleQuoted = val[0] === "'" && val[end] === "'";
@@ -150,7 +177,7 @@ export const Parse = (
          payload['_objects'] = Merge(payload._objects || {});
          let [z, key, value] = matchObjectKey;
          value = toValue(value);
-         key = key.replace(/\-\>/, '@');
+         key = key.replace(/\-\>/gi, '@');
          payload['_objects'][key] = value;
       }
    }
@@ -183,8 +210,18 @@ export const SetDatabase = (data: More) => {
    cog.env = Merge(cog.env, database);
 };
 
-export const Use = <T>(fn: Function, options?: T) => {
-   const data = fn(database, options) || {};
+export const Register = (data: Plugin) => {
+   stat.plugins.push(data);
+};
+
+export const GetStat = () => stat;
+
+export const Use = <T = any>(fn: Function, options?: T | Function) => {
+   if (!options) {
+      options = Register;
+   }
+
+   const data = fn(database, options, Register) || {};
    SetDatabase(data);
 };
 
