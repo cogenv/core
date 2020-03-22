@@ -34,7 +34,6 @@ const defaultOptions: CogenvOptions = {
    objects: false,
 };
 let database: More = {};
-let allPayload: More = {};
 
 // Designed the variables a value
 global.cog = process;
@@ -100,7 +99,7 @@ export const Parse = (
                var key = parts[2];
                replacePart = parts[0].substring(prefix.length);
 
-               value = allPayload[key] || payload[key];
+               value = payload[key];
 
                // process.env value 'wins' over .env file's value
 
@@ -135,31 +134,25 @@ export const Parse = (
          let [z, key, value] = keyValueArr;
          value = toValue(value);
          payload[key] = value;
-         allPayload[key] = value;
-      } else if (types && containType) {
-         payload['_types'] = { ...payload._types };
+      } else if (containType) {
          let [z, key, type, value] = containType;
          value = toValue(value);
-
-         // allPayload[key] = value;
-         // payload[key] = value;
+         payload[key] = value;
          if (types) {
+            payload['_types'] = Merge(payload._types || {});
             key = `${key}@${type}`;
             payload['_types'][key] = value;
          }
       } else if (isObjectKey && objects) {
-         payload['_objects'] = { ...payload._objects };
+         payload['_objects'] = Merge(payload._objects || {});
          let [z, key, value] = matchObjectKey;
          value = toValue(value);
          key = key.replace(/\-\>/, '@');
          payload['_objects'][key] = value;
       }
    }
-   return payload;
-};
 
-const setPayload = (key: string, value: any) => {
-   allPayload[key] = value;
+   return payload;
 };
 
 export const Config = (options: CogenvOptions = {}) => {
@@ -175,18 +168,21 @@ export const Config = (options: CogenvOptions = {}) => {
          objects,
          interpolatePrefix,
       });
-      // database = parsed;
-      // cogenv.env = Merge(cogenv.env, database);
+      SetDatabase(parsed);
       return { parsed };
    } catch (e) {
       return { error: e };
    }
 };
 
-export const Use = <T>(fn: Function, options?: T) => {
-   const data = fn(database, options) || {};
+export const SetDatabase = (data: More) => {
    database = Merge(database, data);
    cog.env = Merge(cog.env, database);
+};
+
+export const Use = <T>(fn: Function, options?: T) => {
+   const data = fn(database, options) || {};
+   SetDatabase(data);
 };
 
 export const Cogenv = {
@@ -196,8 +192,3 @@ export const Cogenv = {
 };
 
 export default Cogenv;
-
-const p = Config({
-   // interpolatePrefix: '$',
-});
-// console.log(p);
