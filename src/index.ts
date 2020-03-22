@@ -23,15 +23,12 @@ interface More {
 interface Plugin {
    name: string;
    author: string;
+   version: string;
 }
 
 interface Stat {
    initialized: boolean;
    version: number | string;
-   author: {
-      name: string;
-      mail: string;
-   };
    plugins?: Plugin[];
 }
 
@@ -51,12 +48,8 @@ const defaultOptions: CogenvOptions = {
 let database: More = {};
 let stat: Stat = {
    initialized: false,
-   version: '1.0.8',
+   version: '1.0.9',
    plugins: [],
-   author: {
-      name: 'Yoni Calsin',
-      mail: 'helloyonicb@gmail.com',
-   },
 };
 
 // Designed the variables a value
@@ -199,6 +192,7 @@ export const Config = (options: CogenvOptions = {}) => {
          interpolatePrefix,
       });
       SetDatabase(parsed);
+      stat.initialized = true;
       return { parsed };
    } catch (e) {
       return { error: e };
@@ -210,19 +204,13 @@ export const SetDatabase = (data: More) => {
    cog.env = Merge(cog.env, database);
 };
 
-export const Register = (data: Plugin) => {
-   stat.plugins.push(data);
-};
-
 export const GetStat = () => stat;
 
 export const Use = <T = any>(fn: Function, options?: T | Function) => {
-   if (!options) {
-      options = Register;
-   }
-
-   const data = fn(database, options, Register) || {};
-   SetDatabase(data);
+   const register = (data: Plugin) => stat.plugins.push(data);
+   !options && (options = register);
+   const data = fn(database, options, register);
+   data && SetDatabase(data);
 };
 
 export const Cogenv = {
