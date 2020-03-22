@@ -119,10 +119,13 @@ export const Parse = (
          continue;
       }
 
-      const keyValueArr = v.match(PARSE_MATCH_LINE);
-      let containType: any = /^\s*([\w.-]+)[:]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
-      containType = v.match(containType);
+      const matchkey = v.match(PARSE_MATCH_LINE);
 
+      // If is a type
+      let isTypeKey: any = /^\s*([\w.-]+)[:]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
+      isTypeKey = v.match(isTypeKey);
+
+      // If is an object
       let matchObjectKey = v.match(/^\s*(^[\w\-\>]+)\s*=\s*(.*)?\s*$/);
       let isObjectKey: any = false;
       if (matchObjectKey) {
@@ -130,12 +133,12 @@ export const Parse = (
          isObjectKey = isObjectKey.length > 1;
       }
 
-      if (keyValueArr != null) {
-         let [z, key, value] = keyValueArr;
+      if (matchkey != null) {
+         let [z, key, value] = matchkey;
          value = toValue(value);
          payload[key] = value;
-      } else if (containType) {
-         let [z, key, type, value] = containType;
+      } else if (isTypeKey) {
+         let [z, key, type, value] = isTypeKey;
          value = toValue(value);
          payload[key] = value;
          if (types) {
