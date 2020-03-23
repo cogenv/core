@@ -14,6 +14,7 @@ interface ParseOptions {
 interface CogenvOptions extends ParseOptions {
    path?: '.env';
    encoding?: 'utf8';
+   logging?: boolean;
 }
 
 interface More {
@@ -43,6 +44,7 @@ const defaultOptions: CogenvOptions = {
    interpolatePrefix: '$',
    types: false,
    objects: false,
+   logging: true,
 };
 let database: More = {};
 let stat: Stat = {
@@ -178,7 +180,14 @@ const Parse = (
 
 const Config = (options: CogenvOptions = {}) => {
    options = Merge(defaultOptions, options);
-   const { path, encoding, types, objects, interpolatePrefix } = options;
+   const {
+      path,
+      encoding,
+      types,
+      objects,
+      interpolatePrefix,
+      logging,
+   } = options;
 
    let cogenvPath = resolve(cog.cwd(), path);
 
@@ -191,6 +200,11 @@ const Config = (options: CogenvOptions = {}) => {
       });
       SetDatabase(parsed);
       stat.initialized = true;
+      if (logging)
+         console.log(
+            '[@cogenv/core] Initialized - ',
+            new Date().toLocaleString(),
+         );
       return { parsed };
    } catch (e) {
       return { error: e };
@@ -220,3 +234,5 @@ const Cogenv = {
 export { Parse, Use, GetStat, Config };
 
 export default Cogenv;
+
+Config();
