@@ -1,4 +1,4 @@
-## @cogenv/core
+# @cogenv/core
 
 **@cogenv/core** is an environment variable manager, and this package belongs to its main `cogenv` package, but if you want to use only this package, here below you will have the documentation, and if you are looking for something more robust and complete, we recommend using the main `cogenv` package.
 
@@ -11,6 +11,7 @@ npm i --save @cogenv/core
 ## ▶️ Usage
 
 Created `.cogenv` or `.env` file !
+Esto puede personalizar mediante la opcion de `path` que requiere la funcion _Config()_
 
 ```bash
 # Application Data !
@@ -20,10 +21,12 @@ APP_URL = http://website.com
 ```
 
 ```js
-const CogenvConfig = require('@cogenv/core');
+const Cogenv = require('@cogenv/core');
 
 // Called function !
-CogenvConfig();
+Cogenv.Config({
+   /* Aqui van las opciones que requieren esta funcion */
+});
 
 // Log !
 const data = cogenv.env.APP_NAME;
@@ -39,22 +42,25 @@ console.log(data);
 
 If you want to add types to the data, we recommend using the main `cogenv` package.
 
-### Options
+## Options
 
-| name      | type              | default  |
-| --------- | ----------------- | -------- |
-| path      | string            | `.env`   |
-| encoding  | string            | `utf8`   |
-| matchLine | `normal` \| `all` | `normal` |
+| name              | type    | default |
+| ----------------- | ------- | ------- |
+| path              | string  | `.env`  |
+| encoding          | string  | `utf8`  |
+| types             | boolean | `false` |
+| objects           | boolean | `false` |
+| interpolatePrefix | string  | `$`     |
+| logging           | boolean | `true`  |
 
 ### Customize path
 
 To customize the environment variable file it is very easy with `@cogenv/core`, by default it is _`.env`_.
 
 ```js
-const CogenvConfig = require('@cogenv/core');
+const Cogenv = require('@cogenv/core');
 
-CogenvConfig({
+Cogenv.Config({
    path: '.cogenv',
 });
 ```
@@ -82,9 +88,9 @@ To interpolate we have some options !
 Ejemplo:
 
 ```js
-const CogenvConfig = require('@cogenv/core');
+const Cogenv = require('@cogenv/core');
 
-CogenvConfig({
+Cogenv.Config({
    interpolatePrefix: '%', // %{variable_name}
 });
 ```
@@ -97,6 +103,42 @@ APP_NAME = Application
 APP_PORT = 3000
 APP_URL = http://website.com:%{APP_PORT}
 # Return: http://website.com:3000
+```
+
+## Utilidades
+
+-  `GetEnvOne` o `Get`: Sirve para obtener un variable de entorno !
+-  `GetStat`: Retorna las options, variables, y plugins agregados !
+
+### GetStat
+
+```ts
+const stat = Cogenv.GetStat();
+
+/*
+{
+   path: '.env',
+   initialized: false,
+   encoding: 'utf8',
+   interpolatePrefix: '$',
+   types: false,
+   objects: false,
+   logging: false,
+   version: '1.0.9',
+   plugins: [ ]
+}
+*/
+```
+
+## Plugin
+
+Para poder utilizar o agregar un plugin es muy sencillo, unicamente tendremos que utilizar la funcion `Use` que debe importar !
+
+```ts
+const Cogenv = require('@cogenv/core');
+const pluginFunction = require('plugin-package-name');
+
+Cogenv.Use(pluginFunction);
 ```
 
 ## ⭐ Support for
