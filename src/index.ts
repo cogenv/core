@@ -159,7 +159,7 @@ const Parse = (
       isTypeKey = v.match(isTypeKey);
 
       // If is an object
-      let matchObjectKey = v.match(/^\s*(^[\w\-\>]+)\s*=\s*(.*)?\s*$/);
+      let matchObjectKey = v.match(/^\s*(^[\w\-\>\:]+)\s*=\s*(.*)?\s*$/);
       let isObjectKey: any = false;
       if (matchObjectKey) {
          isObjectKey = matchObjectKey[1].split(/\-\>/gi);
