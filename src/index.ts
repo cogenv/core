@@ -191,14 +191,7 @@ const Parse = (
 
 const Config = (options: CogenvOptions = {}) => {
    options = Merge(defaultOptions, options);
-   const {
-      path,
-      encoding,
-      types,
-      objects,
-      interpolatePrefix,
-      logging,
-   } = options;
+   const { path, encoding, types, objects, interpolatePrefix } = options;
 
    stat = Merge(stat, options);
 
