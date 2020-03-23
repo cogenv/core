@@ -137,6 +137,33 @@ const stat = Cogenv.GetStat();
 */
 ```
 
+## Typescript
+
+Para utilizar con typescript, tendremos que agregar el tipado global
+
+> Primero crearemos `globals.d.ts` para agregar la variable `cog` como global !
+
+Despues de haber creado el archivo, copié el siguente codigo !
+
+```ts
+interface More {
+   [key: string]: any;
+}
+interface Cogenv extends More {
+   // Enter to here your types
+   PORT?: number;
+   NODE_ENV?: string;
+   _types?: More;
+   _objects?: More;
+}
+
+interface Cog extends NodeJS.Process {
+   env: Cogenv;
+}
+
+declare var cog: Cog;
+```
+
 ## Plugin
 
 Para poder utilizar o agregar un plugin es muy sencillo, unicamente tendremos que utilizar la funcion `Use` que debe importar !
