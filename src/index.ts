@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { Merge } from 'merge-options-default';
+import Chalk from 'chalk';
 
 // Interfaces
 declare var global: {
@@ -191,9 +192,9 @@ const Parse = (
 
 const Config = (options: CogenvOptions = {}) => {
    options = Merge(defaultOptions, options);
-   const { path, encoding, types, objects, interpolatePrefix } = options;
-
    stat = Merge(stat, options);
+   Log('Starting...');
+   const { path, encoding, types, objects, interpolatePrefix } = options;
 
    let cogenvPath = resolve(cog.cwd(), path);
 
@@ -218,7 +219,9 @@ const SetDatabase = (data: More) => {
    cog.env = Merge(cog.env, database);
 };
 
+// Getters
 const GetStat = () => stat;
+const GetEnvOne = (key: string) => database[key];
 
 const Use = <T>(fn: Function, options?: T | Function) => {
    let plugin;
@@ -237,8 +240,10 @@ const Cogenv = {
    Parse,
    Config,
    Use,
+   GetStat,
+   GetEnvOne,
 };
 
-export { Parse, Use, GetStat, Config };
+export { Parse, Config, Use, GetStat, GetEnvOne };
 
 export default Cogenv;
