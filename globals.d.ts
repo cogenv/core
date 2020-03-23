@@ -1,7 +1,7 @@
 interface Cogenv {
    // Enter to here your types
-   PORT: number;
-   NODE_ENV: string;
+   PORT?: number;
+   NODE_ENV?: string;
    [key: string]: any;
 }
 
