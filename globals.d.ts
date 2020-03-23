@@ -1,8 +1,12 @@
-interface Cogenv {
+interface More {
+   [key: string]: any;
+}
+interface Cogenv extends More {
    // Enter to here your types
    PORT?: number;
    NODE_ENV?: string;
-   [key: string]: any;
+   _types?: More;
+   _objects?: More;
 }
 
 interface Cog extends NodeJS.Process {
