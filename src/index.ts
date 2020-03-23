@@ -213,6 +213,7 @@ const Config = (options: CogenvOptions = {}) => {
       });
       SetDatabase(parsed);
       stat.initialized = true;
+      Log('Initialized Correctly');
       return { parsed };
    } catch (e) {
       return { error: e };
@@ -227,10 +228,16 @@ const SetDatabase = (data: More) => {
 const GetStat = () => stat;
 
 const Use = <T = any>(fn: Function, options?: T | Function) => {
-   const register = (data: Plugin) => stat.plugins.push(data);
+   let plugin;
+   const register = (data: Plugin) => {
+      stat.plugins.push(data);
+      plugin = data;
+      Log('Registered...', data.name);
+   };
    !options && (options = register);
    const data = fn(database, options, register);
    data && SetDatabase(data);
+   Log('Started Correctly', plugin.name);
 };
 
 const Cogenv = {
@@ -242,8 +249,3 @@ const Cogenv = {
 export { Parse, Use, GetStat, Config };
 
 export default Cogenv;
-
-Config({
-   // types: true,
-   // logging: false,
-});
