@@ -246,6 +246,5 @@ const Cogenv = {
 
 export { Parse, Config, Use, GetStat, GetEnvOne, GetEnvOne as Get };
 
+exports = Cogenv;
 export default Cogenv;
-
-module.exports = Cogenv;
