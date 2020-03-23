@@ -220,7 +220,7 @@ const SetDatabase = (data: More) => {
 
 const GetStat = () => stat;
 
-const Use = <T = any>(fn: Function, options?: T | Function) => {
+const Use = <T>(fn: Function, options?: T | Function) => {
    let plugin;
    const register = (data: Plugin) => {
       stat.plugins.push(data);
