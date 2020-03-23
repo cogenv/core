@@ -1,6 +1,7 @@
 # Folders
 /.vscode
 /src
+/examples
 
 /changelog.config.js
 
