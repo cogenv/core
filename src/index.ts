@@ -162,14 +162,13 @@ const Parse = (
          payload[key] = value;
          if (types) {
             payload['_types'] = Merge(payload._types || {});
-            key = `${key}@${type}`;
+            key = `${key}:${type}`;
             payload['_types'][key] = value;
          }
       } else if (isObjectKey && objects) {
          payload['_objects'] = Merge(payload._objects || {});
          let [z, key, value] = matchObjectKey;
          value = toValue(value);
-         key = key.replace(/\-\>/gi, '@');
          payload['_objects'][key] = value;
       }
    }
