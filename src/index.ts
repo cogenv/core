@@ -11,9 +11,9 @@ interface ParseOptions {
    objects?: boolean;
    interpolatePrefix?: string;
 }
-interface CogenvOptions extends ParseOptions {
-   path?: '.env';
-   encoding?: 'utf8';
+export interface CogenvOptions extends ParseOptions {
+   path?: string;
+   encoding?: string;
    logging?: boolean;
 }
 
@@ -235,16 +235,5 @@ const Use = <T>(fn: Function, options?: T | Function) => {
    Log('Started Correctly', plugin.name);
 };
 
-const Cogenv = {
-   Parse,
-   Config,
-   Use,
-   GetStat,
-   GetEnvOne,
-   Get: GetEnvOne,
-};
-
 export { Parse, Config, Use, GetStat, GetEnvOne, GetEnvOne as Get };
-
-exports = Cogenv;
-export default Cogenv;
+export default Config;
