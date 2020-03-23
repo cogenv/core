@@ -224,7 +224,7 @@ const GetStat = () => stat;
 const GetEnvOne = (key: string) => database[key];
 
 const Use = <T>(fn: Function, options?: T | Function) => {
-   let plugin;
+   let plugin: Plugin;
    const register = (data: Plugin) => {
       stat.plugins.push(data);
       plugin = data;
@@ -242,8 +242,9 @@ const Cogenv = {
    Use,
    GetStat,
    GetEnvOne,
+   Get: GetEnvOne,
 };
 
-export { Parse, Config, Use, GetStat, GetEnvOne };
+export { Parse, Config, Use, GetStat, GetEnvOne, GetEnvOne as Get };
 
 export default Cogenv;
