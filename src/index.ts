@@ -26,7 +26,7 @@ interface Plugin {
    version: string;
 }
 
-interface Stat {
+interface Stat extends CogenvOptions {
    initialized: boolean;
    version: number | string;
    plugins?: Plugin[];
@@ -47,7 +47,8 @@ const defaultOptions: CogenvOptions = {
    logging: true,
 };
 let database: More = {};
-let stat: Stat = {
+let stat: Stat | More = {
+   ...defaultOptions,
    initialized: false,
    version: '1.0.9',
    plugins: [],
@@ -55,6 +56,16 @@ let stat: Stat = {
 
 // Designed the variables a value
 global.cog = process;
+
+const Log = (msg: string, plugin?: string) => {
+   if (!stat.logging) {
+      return;
+   }
+   let message = `[@cogenv/core]`;
+   plugin && (message += `[${plugin}]`);
+   message += ` ${msg} - ${new Date().toLocaleString()}`;
+   console.log(message);
+};
 
 const Parse = (
    source: string,
@@ -189,6 +200,8 @@ const Config = (options: CogenvOptions = {}) => {
       logging,
    } = options;
 
+   stat = Merge(stat, options);
+
    let cogenvPath = resolve(cog.cwd(), path);
 
    try {
@@ -200,11 +213,6 @@ const Config = (options: CogenvOptions = {}) => {
       });
       SetDatabase(parsed);
       stat.initialized = true;
-      if (logging)
-         console.log(
-            '[@cogenv/core] Initialized - ',
-            new Date().toLocaleString(),
-         );
       return { parsed };
    } catch (e) {
       return { error: e };
@@ -235,4 +243,7 @@ export { Parse, Use, GetStat, Config };
 
 export default Cogenv;
 
-Config();
+Config({
+   // types: true,
+   // logging: false,
+});
