@@ -110,6 +110,13 @@ APP_URL = http://website.com:%{APP_PORT}
 -  `GetEnvOne` o `Get`: Sirve para obtener un variable de entorno !
 -  `GetStat`: Retorna las options, variables, y plugins agregados !
 
+### GetEnvOne or Get
+
+```js
+const appName = Config.GetEnvOne('APP_NAME');
+// Retornara: "Application"
+```
+
 ### GetStat
 
 ```ts
