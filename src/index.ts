@@ -75,12 +75,11 @@ const Parse = (
    const arr = source.toString().split(NEWLINES_MATCH);
 
    const RegexInterpolate = new RegExp(
-      `(.?\\${interpolatePrefix}{?(?:[a-zA-Z0-9_]+)?}?)`,
+      `(.?\\${interpolatePrefix}{?(?:[a-zA-Z0-9_\.]+)?}?)`,
       'g',
    );
    const RegexInterpolateParts = new RegExp(
-      `(.?)\\${interpolatePrefix}{?([a-zA-Z0-9_]+)?}?`,
-      'g',
+      `(.?)\\${interpolatePrefix}{?([a-zA-Z0-9_\.]+)?}?`,
    );
 
    const toValue = (val: string): string => {
@@ -116,7 +115,7 @@ const Parse = (
 
       if (matches.length > 0) {
          return matches.reduce(function(newEnv, match) {
-            var parts = RegexInterpolateParts.exec(match);
+            var parts = match.match(RegexInterpolateParts) || [];
             var prefix = parts[1];
 
             var value, replacePart;
@@ -132,6 +131,10 @@ const Parse = (
                replacePart = parts[0].substring(prefix.length);
 
                value = payload[key];
+               if (!value && objects) {
+                  key = key.replace(/\./g, '->');
+                  value = payload._objects[key];
+               }
 
                // process.env value 'wins' over .env file's value
 
