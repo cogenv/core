@@ -33,11 +33,6 @@ interface Stat extends CogenvOptions {
 }
 
 // Variables Data !
-const NEWLINE = '\n';
-let PARSE_MATCH_LINE = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/;
-
-const RE_NEWLINES = /\\n/g;
-const NEWLINES_MATCH = /\n|\r|\r\n/;
 const defaultOptions: CogenvOptions = {
    path: '.env',
    encoding: 'utf8',
@@ -52,6 +47,30 @@ let stat: Stat | More = {
    initialized: false,
    version: '1.0.9',
    plugins: [],
+};
+const rexs = {
+   // Parses
+   parseline: /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/,
+   parselineTyped: /^\s*([\w.-]+)[:]\s*([a-z]+)\s*=\s*(.*)?\s*$/,
+   parselineObject: /^\s*(^[\w\-\>\:]+)\s*=\s*(.*)?\s*$/,
+
+   // Lines
+   newline: '\n',
+   newlines: /\\n/g,
+   newlinesMatch: /\n|\r|\r\n/,
+
+   // Parse interpolate
+   interpolate: () => {
+      return new RegExp(
+         `(.?\\${stat.interpolatePrefix}{?(?:[a-zA-Z0-9_\.]+)?}?)`,
+         'g',
+      );
+   },
+   interpolateParts: () => {
+      return new RegExp(
+         `(.?)\\${stat.interpolatePrefix}{?([a-zA-Z0-9_\.]+)?}?`,
+      );
+   },
 };
 
 // Designed the variables a value
@@ -72,15 +91,7 @@ const Parse = (
    { interpolatePrefix, types, objects }: ParseOptions,
 ) => {
    const payload: More = {};
-   const arr = source.toString().split(NEWLINES_MATCH);
-
-   const RegexInterpolate = new RegExp(
-      `(.?\\${interpolatePrefix}{?(?:[a-zA-Z0-9_\.]+)?}?)`,
-      'g',
-   );
-   const RegexInterpolateParts = new RegExp(
-      `(.?)\\${interpolatePrefix}{?([a-zA-Z0-9_\.]+)?}?`,
-   );
+   const arr = source.toString().split(rexs.newlinesMatch);
 
    const toValue = (val: string): string => {
       if (!val) {
@@ -96,7 +107,7 @@ const Parse = (
 
          // if double quoted, expand newlines
          if (isDoubleQuoted) {
-            val = val.replace(RE_NEWLINES, NEWLINE);
+            val = val.replace(rexs.newlines, rexs.newline);
          }
       } else {
          // remove surrounding whitespace
@@ -111,11 +122,11 @@ const Parse = (
          return source;
       }
 
-      var matches: any[] = source.match(RegexInterpolate) || [];
+      var matches: any[] = source.match(rexs.interpolate()) || [];
 
       if (matches.length > 0) {
          return matches.reduce(function(newEnv, match) {
-            var parts = match.match(RegexInterpolateParts) || [];
+            var parts = match.match(rexs.interpolateParts()) || [];
             var prefix = parts[1];
 
             var value, replacePart;
@@ -154,14 +165,13 @@ const Parse = (
          continue;
       }
 
-      const matchkey = v.match(PARSE_MATCH_LINE);
+      const matchkey = v.match(rexs.parseline);
 
       // If is a type
-      let isTypeKey: any = /^\s*([\w.-]+)[:]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
-      isTypeKey = v.match(isTypeKey);
+      let isTypeKey = v.match(rexs.parselineTyped);
 
       // If is an object
-      let matchObjectKey = v.match(/^\s*(^[\w\-\>\:]+)\s*=\s*(.*)?\s*$/);
+      let matchObjectKey = v.match(rexs.parselineObject);
       let isObjectKey: any = false;
       if (matchObjectKey) {
          isObjectKey = matchObjectKey[1].split(/\-\>/gi);
