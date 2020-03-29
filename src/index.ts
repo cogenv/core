@@ -219,9 +219,11 @@ const Config = (options: CogenvOptions = {}) => {
       });
       SetDatabase(parsed);
       stat.initialized = true;
+      Log('Variable envirements file ' + stat.path);
       Log('Initialized Correctly');
       return { parsed };
    } catch (e) {
+      console.log('[@cogenv/core][Error]', e);
       return { error: e };
    }
 };
@@ -248,5 +250,5 @@ const Use = <T>(fn: Function, options?: T | Function) => {
    Log('Started Correctly', plugin.name);
 };
 
-export { Parse, Config, Use, GetStat, GetEnvOne, GetEnvOne as Get };
+export { Parse, Config, Use, GetStat, GetEnvOne, GetEnvOne as env };
 export default Config;
