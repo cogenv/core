@@ -1,3 +1,5 @@
+/// <reference path="../globals.d.ts" />
+
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { Merge } from 'merge-options-default';
