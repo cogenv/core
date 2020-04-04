@@ -237,7 +237,7 @@ const SetDatabase = (data: More) => {
 
 // Getters
 const GetStat = () => stat;
-const GetEnvOne = (key: string) => database[key];
+const GetEnvOne = (key: string) => database[key] || cog.env[key];
 
 const Use = <T>(fn: Function, options?: T | Function) => {
    let plugin: Plugin;
