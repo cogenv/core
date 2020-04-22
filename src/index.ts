@@ -1,49 +1,104 @@
+/// <reference path="../globals.d.ts" />
+
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
+import { Merge } from 'merge-all-objects';
 
-const NEWLINE = '\n';
-let PARSE_MATCH_LINE = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/;
-
-const RE_NEWLINES = /\\n/g;
-const NEWLINES_MATCH = /\n|\r|\r\n/;
-
+// Interfaces
 declare var global: {
-   cogenv: NodeJS.Process;
+   cog: NodeJS.Process;
 };
-
-global.cogenv = process;
-
-interface CogenvOptions {
-   path?: '.env';
-   encoding?: 'utf8';
-   matchLine?: 'all' | 'normal';
+interface ParseOptions {
+   types?: boolean;
+   objects?: boolean;
    interpolatePrefix?: string;
 }
+export interface CogenvOptions extends ParseOptions {
+   path?: string;
+   encoding?: string;
+   logging?: boolean;
+}
 
+interface More {
+   [key: string]: any;
+}
+
+interface Plugin {
+   name: string;
+   version: string;
+}
+
+interface Stat extends CogenvOptions {
+   initialized: boolean;
+   version: number | string;
+   plugins?: Plugin[];
+}
+
+// Variables Data !
 const defaultOptions: CogenvOptions = {
    path: '.env',
    encoding: 'utf8',
-   matchLine: 'normal',
    interpolatePrefix: '$',
+   types: false,
+   objects: false,
+   logging: true,
+};
+let database: More = {};
+let stat: Stat | More = {
+   ...defaultOptions,
+   initialized: false,
+   version: '1.0.9',
+   plugins: [],
+};
+const rexs = {
+   // Parses
+   parseline: /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/,
+   parselineTyped: /^\s*([\w.-]+)[:]\s*([a-z]+)\s*=\s*(.*)?\s*$/,
+   parselineObject: /^\s*(^[\w\-\>\:]+)\s*=\s*(.*)?\s*$/,
+
+   // Lines
+   newline: '\n',
+   newlines: /\\n/g,
+   newlinesMatch: /\n|\r|\r\n/,
+
+   // Parse interpolate
+   interpolate: () => {
+      return new RegExp(
+         `(.?\\${stat.interpolatePrefix}{?(?:[a-zA-Z0-9_\.]+)?}?)`,
+         'g',
+      );
+   },
+   interpolateParts: () => {
+      return new RegExp(
+         `(.?)\\${stat.interpolatePrefix}{?([a-zA-Z0-9_\.]+)?}?`,
+      );
+   },
 };
 
-const CogenvParse = (
+// Designed the variables a value
+global.cog = process;
+
+const Log = (msg: string, plugin?: string) => {
+   if (!stat.logging) {
+      return;
+   }
+   let message = `[@cogenv/core]`;
+   plugin && (message += `[${plugin}]`);
+   message += ` ${msg} - ${new Date().toLocaleString()}`;
+   console.log(message);
+};
+
+const Parse = (
    source: string,
-   matchLine: 'all' | 'normal' = 'normal',
-   interpolatePrefix?: string,
+   { interpolatePrefix, types, objects }: ParseOptions,
 ) => {
-   const payload = {};
-   const arr = source.toString().split(NEWLINES_MATCH);
-   const RegexInterpolate = new RegExp(
-      `(.?\\${interpolatePrefix}{?(?:[a-zA-Z0-9_]+)?}?)`,
-      'g',
-   );
-   const RegexInterpolateParts = new RegExp(
-      `(.?)\\${interpolatePrefix}{?([a-zA-Z0-9_]+)?}?`,
-      'g',
-   );
+   const payload: More = {};
+   const arr = source.toString().split(rexs.newlinesMatch);
 
    const toValue = (val: string): string => {
+      if (!val) {
+         return '';
+      }
       const end = val.length - 1;
       const isDoubleQuoted = val[0] === '"' && val[end] === '"';
       const isSingleQuoted = val[0] === "'" && val[end] === "'";
@@ -54,7 +109,7 @@ const CogenvParse = (
 
          // if double quoted, expand newlines
          if (isDoubleQuoted) {
-            val = val.replace(RE_NEWLINES, NEWLINE);
+            val = val.replace(rexs.newlines, rexs.newline);
          }
       } else {
          // remove surrounding whitespace
@@ -69,11 +124,11 @@ const CogenvParse = (
          return source;
       }
 
-      var matches: any[] = source.match(RegexInterpolate) || [];
+      var matches: any[] = source.match(rexs.interpolate()) || [];
 
       if (matches.length > 0) {
          return matches.reduce(function(newEnv, match) {
-            var parts = RegexInterpolateParts.exec(match);
+            var parts = match.match(rexs.interpolateParts()) || [];
             var prefix = parts[1];
 
             var value, replacePart;
@@ -89,6 +144,11 @@ const CogenvParse = (
                replacePart = parts[0].substring(prefix.length);
 
                value = payload[key];
+               if (!value && objects) {
+                  key = key.replace(/\./g, '->');
+                  value = payload._objects[key];
+               }
+
                // process.env value 'wins' over .env file's value
 
                // Resolve recursive interpolations
@@ -102,29 +162,42 @@ const CogenvParse = (
       }
    };
 
-   for (const [k, v] of arr.entries()) {
-      const keyValueArr = v.match(PARSE_MATCH_LINE);
+   for (const v of arr) {
+      if (!v) {
+         continue;
+      }
 
-      let containType: any = /^\s*([\w.-]+)[:|@]\s*([a-z]+)\s*=\s*(.*)?\s*$/;
-      containType = v.match(containType);
+      const matchkey = v.match(rexs.parseline);
 
-      if (keyValueArr != null) {
-         const key = keyValueArr[1];
-         let val = keyValueArr[2] || '';
-         1;
+      // If is a type
+      let isTypeKey = v.match(rexs.parselineTyped);
 
-         val = toValue(val);
+      // If is an object
+      let matchObjectKey = v.match(rexs.parselineObject);
+      let isObjectKey: any = false;
+      if (matchObjectKey) {
+         isObjectKey = matchObjectKey[1].split(/\-\>/gi);
+         isObjectKey = isObjectKey.length > 1;
+      }
 
-         payload[key] = val;
-      } else {
-         if (containType && matchLine == 'all') {
-            let key = containType[1];
-            const type = containType[2];
-            let value = containType[3];
-            value = toValue(value);
-            key = key + '@' + type;
-            payload[key] = value;
+      if (matchkey != null) {
+         let [z, key, value] = matchkey;
+         value = toValue(value);
+         payload[key] = value;
+      } else if (isTypeKey) {
+         let [z, key, type, value] = isTypeKey;
+         value = toValue(value);
+         payload[key] = value;
+         if (types) {
+            payload['_types'] = Merge(payload._types || {});
+            key = `${key}:${type}`;
+            payload['_types'][key] = value;
          }
+      } else if (isObjectKey && objects) {
+         payload['_objects'] = Merge(payload._objects || {});
+         let [z, key, value] = matchObjectKey;
+         value = toValue(value);
+         payload['_objects'][key] = value;
       }
    }
 
@@ -132,32 +205,52 @@ const CogenvParse = (
 };
 
 const Config = (options: CogenvOptions = {}) => {
-   options = {
-      ...defaultOptions,
-      ...options,
-   };
+   options = Merge(defaultOptions, options);
+   stat = Merge(stat, options);
+   Log('Starting...');
+   const { path, encoding, types, objects, interpolatePrefix } = options;
 
-   let cogenvPath = resolve(process.cwd(), options.path);
-   let encoding = options.encoding;
+   let cogenvPath = resolve(cog.cwd(), path);
 
    try {
-      let parsed: any = readFileSync(cogenvPath, { encoding });
-      parsed = CogenvParse(
-         parsed,
-         options.matchLine,
-         options.interpolatePrefix,
-      );
-      if (options.matchLine == 'normal') {
-         Object.keys(parsed).forEach(k => {
-            cogenv.env[k] = parsed[k];
-         });
-      }
+      let parsed: string | More = readFileSync(cogenvPath, { encoding });
+      parsed = Parse(parsed, {
+         types,
+         objects,
+         interpolatePrefix,
+      });
+      SetDatabase(parsed);
+      stat.initialized = true;
+      Log('Variable envirements file ' + stat.path);
+      Log('Initialized Correctly');
       return { parsed };
    } catch (e) {
+      console.log('[@cogenv/core][Error]', e);
       return { error: e };
    }
 };
 
-export { CogenvParse, Config };
+const SetDatabase = (data: More) => {
+   database = Merge(database, data);
+   cog.env = Merge(cog.env, database);
+};
 
+// Getters
+const GetStat = () => stat;
+const GetEnvOne = (key: string) => database[key] || cog.env[key];
+
+const Use = <T>(fn: Function, options?: T | Function) => {
+   let plugin: Plugin;
+   const register = (data: Plugin) => {
+      stat.plugins.push(data);
+      plugin = data;
+      Log('Registered...', data.name);
+   };
+   !options && (options = register);
+   const data = fn(database, options, register);
+   data && SetDatabase(data);
+   Log('Started Correctly', plugin.name);
+};
+
+export { Parse, Config, Use, GetStat, GetEnvOne, GetEnvOne as env };
 export default Config;
