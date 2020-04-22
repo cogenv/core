@@ -9,7 +9,8 @@
       "sourceMap": false,
       "outDir": "./dist",
       "baseUrl": "./src",
-      "incremental": false
+      "incremental": false,
+      "esModuleInterop": true
    },
    "exclude": ["node_modules", "dist", "examples"]
 }
