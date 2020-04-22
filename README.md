@@ -10,8 +10,8 @@ npm i --save @cogenv/core
 
 ## ▶️ Usage
 
-Created `.cogenv` or `.env` file !
-Esto puede personalizar mediante la opcion de `path` que requiere la funcion _Config()_
+Creó el archivo `.cogenv` o `.env` !
+Esto se puede personalizar mediante la opción de `path` que requiere la función _Config()_
 
 ```bash
 # Application Data !
@@ -21,11 +21,11 @@ APP_URL = http://website.com
 ```
 
 ```js
-const Cogenv = require('@cogenv/core');
+import { Config } from '@cogenv/core';
 
 // Called function !
-Cogenv.Config({
-   /* Aqui van las opciones que requieren esta funcion */
+Config({
+   /* Here are the options that require this function */
 });
 
 // Log !
@@ -58,9 +58,7 @@ If you want to add types to the data, we recommend using the main `cogenv` packa
 To customize the environment variable file it is very easy with `@cogenv/core`, by default it is _`.env`_.
 
 ```js
-const Cogenv = require('@cogenv/core');
-
-Cogenv.Config({
+Config({
    path: '.cogenv',
 });
 ```
@@ -85,12 +83,10 @@ To interpolate we have some options !
 | ----------------- | -------- | ------- |
 | interpolatePrefix | `string` | `$`     |
 
-Ejemplo:
+Example:
 
 ```js
-const Cogenv = require('@cogenv/core');
-
-Cogenv.Config({
+Config({
    interpolatePrefix: '%', // %{variable_name}
 });
 ```
@@ -107,14 +103,19 @@ APP_URL = http://website.com:%{APP_PORT}
 
 ## Utilidades
 
--  `GetEnvOne` o `Get`: Sirve para obtener un variable de entorno !
+-  `GetEnvOne` o `env`: Sirve para obtener un variable de entorno !
 -  `GetStat`: Retorna las options, variables, y plugins agregados !
 
 ### GetEnvOne or Get
 
 ```js
-const appName = Config.GetEnvOne('APP_NAME');
-// Retornara: "Application"
+import { GetEnvOne, env } from '@cogenv/core';
+//  GetEnvOne or env
+
+const appName = GetEnvOne('APP_NAME');
+
+const appName2 = env('APP_NAME');
+// Return to: "Application"
 ```
 
 ### GetStat
