@@ -1,6 +1,3 @@
-interface More {
-   [key: string]: any;
-}
 interface Cogenv extends More {
    // Enter to here your types
    PORT?: number;
