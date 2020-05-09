@@ -1,38 +1,31 @@
+/// <reference path="../types.d.ts" />
 /// <reference path="../globals.d.ts" />
+
+declare var global: {
+   cog: NodeJS.Process;
+};
+
+/*!
+ * @cogenv/core v1.0.9 (https://github.com/cogenv/core)
+ * Copyright 2019 The @cogenv/core Authors
+ * Copyright 2019 Yoni Calsin.
+ * Licensed under MIT (https://github.com/cogenv/core/blob/master/LICENSE)
+ */
 
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { Merge } from 'merge-all-objects';
-
-// Interfaces
-declare var global: {
-   cog: NodeJS.Process;
-};
-interface ParseOptions {
-   types?: boolean;
-   objects?: boolean;
-   interpolatePrefix?: string;
-}
-export interface CogenvOptions extends ParseOptions {
-   path?: string;
-   encoding?: string;
-   logging?: boolean;
-}
-
-interface More {
-   [key: string]: any;
-}
-
-interface Plugin {
-   name: string;
-   version: string;
-}
-
-interface Stat extends CogenvOptions {
-   initialized: boolean;
-   version: number | string;
-   plugins?: Plugin[];
-}
+import {
+   isFunction,
+   isString,
+   isObject,
+   isArray,
+   isNumber,
+   isNull,
+   isUndefined,
+   isBoolean,
+} from 'is-all-utils';
+import { uuid } from './uuid';
 
 // Variables Data !
 const defaultOptions: CogenvOptions = {
@@ -236,12 +229,12 @@ const SetDatabase = (data: More) => {
 };
 
 // Getters
-const GetStat = () => stat;
-const GetEnvOne = (key: string) => database[key] || cog.env[key];
+const cogStat = () => stat;
+const env = (key: string) => database[key] || cog.env[key];
 
 const Use = <T>(fn: Function, options?: T | Function) => {
-   let plugin: Plugin;
-   const register = (data: Plugin) => {
+   let plugin: PluginItem | More = {};
+   const register = (data: PluginItem) => {
       stat.plugins.push(data);
       plugin = data;
       Log('Registered...', data.name);
@@ -252,5 +245,184 @@ const Use = <T>(fn: Function, options?: T | Function) => {
    Log('Started Correctly', plugin.name);
 };
 
-export { Parse, Config, Use, GetStat, GetEnvOne, GetEnvOne as env };
-export default Config;
+interface Module {
+   token: string;
+   name: string;
+   tokens: More;
+   version: string;
+}
+
+interface Pipe extends More {
+   token: string;
+   module_token: string;
+}
+
+interface Pipes {
+   parse: Pipe[];
+}
+
+export class Cogenv {
+   private options: CogenvOptions = {};
+   private payload: More = {};
+   private modules: Module[] = [];
+   private pipes: Pipes = {
+      parse: [],
+   };
+
+   public config(options?: CogenvOptions) {
+      this.options = Merge(defaultOptions, options);
+   }
+   public init(fn: Function) {
+      const { path, encoding } = this.options;
+
+      let cogenvPath = resolve(path);
+
+      try {
+         const parsed = readFileSync(cogenvPath, { encoding });
+
+         this.parse(parsed);
+
+         isFunction(fn) && fn(this.options);
+      } catch {}
+   }
+   private parse(source: string) {
+      const lines = source.toString().split(rexs.newlinesMatch);
+      const allLines = {};
+
+      var index = 0;
+      for (const [key, line] of Object.entries(lines)) {
+         if (!line) continue;
+
+         ++index;
+
+         const matchKey = line.match(rexs.parseline);
+
+         // /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/,
+         // /^\s*(^[\w\-\>\:]+)\s*=\s*(.*)?\s*$/
+         const objKey = line.match(/^\s*(^[\s->\w.-]+)\s*=\s*(.*)?\s*$/);
+
+         if (objKey) {
+            allLines[index] = line;
+         }
+
+         if (matchKey) {
+            const key = matchKey[1];
+            const value = matchKey[2];
+            this.payload[key] = this.toValue(value);
+         }
+      }
+
+      for (const [key, line] of Object.entries<string>(allLines)) {
+         const index = Number(key);
+         const parent = line.match(/^\s*(^[\w\-\>\:]+)\s*=\s*(.*)?\s*$/);
+
+         if (parent) {
+            // let currentIndex = index;
+            // const nextChild: string = allLines[++currentIndex];
+            // const isChild = nextChild.match(
+            //    /^\s*(->[\w->:]+)\s*=\s*(.*)?\s*$/g,
+            // );
+
+            // if (isChild) {
+            // console.log('Si es');
+            // }
+            let currentIndex = index;
+            let notFoundChild = true;
+
+            while (notFoundChild) {
+               const nextChild: string = allLines[++currentIndex];
+
+               !nextChild && (notFoundChild = false);
+
+               const isChild = nextChild.match(
+                  /^\s*(->[\w->:]+)\s*=\s*(.*)?\s*$/g,
+               );
+
+               !isChild && (notFoundChild = false);
+
+               // console.log(isChild);
+            }
+            // for (var i = 0; i < Object.keys(allLines).length; i++) {
+            //    const nextChild: string = allLines[++currentIndex];
+
+            //    if (!nextChild) i = 0;
+
+            //    const isChild = nextChild.match(
+            //       /^\s*(->[\w->:]+)\s*=\s*(.*)?\s*$/g,
+            //    );
+
+            //    if (!isChild) i = 0;
+
+            //    console.log(isChild);
+            // }
+         } else {
+            continue;
+         }
+      }
+      // console.log(allLines);
+   }
+   private toValue(value: string) {
+      if (!value) return '';
+      const end = value.length - 1;
+      const isQuoted = value.match(/^(["'])(.*)(["'])$/g);
+
+      // Trimed
+      value = value.trim();
+
+      if (isQuoted) {
+         value = value.substring(1, end);
+      }
+
+      return this.interpolate(value);
+   }
+   private interpolate(value: string) {
+      if (!isString(value)) return value;
+
+      const matches = value.match(/(.?\${?(?:[a-zA-Z0-9_.]+)?}?)/g);
+
+      return value;
+   }
+   public use(moduleFn: Function) {
+      const token = uuid(25);
+      let { meta, pipes } = moduleFn({});
+
+      meta['token'] = token;
+
+      if (isObject(pipes)) {
+         if (isFunction(pipes.parse)) {
+            const pipeToken = uuid(25);
+            this.pipes.parse[pipeToken] = {
+               token: pipeToken,
+               module_token: token,
+            };
+            meta['pipes'] = {
+               parse: pipeToken,
+            };
+         }
+      }
+
+      this.modules[token] = meta;
+   }
+}
+
+const app = new Cogenv();
+
+app.config({
+   logging: false,
+   // interpolatePrefix: '{%s}',
+});
+
+app.use((data: More, register: Function) => {
+   return {
+      data: data,
+      meta: {
+         name: '@cogenv/object',
+         version: '20.4.6',
+      },
+      pipes: {
+         parse: () => {
+            // console.log('');
+         },
+      },
+   };
+});
