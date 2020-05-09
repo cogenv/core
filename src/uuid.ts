@@ -9,8 +9,7 @@ export const uuid = (len: number) => {
    let payload = '';
    while (len) {
       --len;
-      var key = Math.random() * charset.length;
-      key = Math.floor(key);
+      var key = Math.floor(Math.random() * charset.length);
       payload += charset[key];
    }
    return payload;
