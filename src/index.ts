@@ -26,6 +26,8 @@ import {
    isBoolean,
 } from 'is-all-utils';
 import { uuid } from './uuid';
+import hash from 'object-hash';
+import { ObjIterate, _ignoreNil } from './util';
 
 // Variables Data !
 const defaultOptions: CogenvOptions = {
@@ -245,35 +247,68 @@ const Use = <T>(fn: Function, options?: T | Function) => {
    Log('Started Correctly', plugin.name);
 };
 
-interface Module {
-   token: string;
-   name: string;
-   tokens: More;
-   version: string;
-}
-
-interface Pipe extends More {
-   token: string;
-   module_token: string;
-}
-
-interface Pipes {
-   parse: Pipe[];
+class CogenvBase {
+   private _newPipes: More = {};
+   private _newHelpers: More = {};
+   protected meta: More = {};
+   constructor(
+      protected readonly options: More,
+      protected readonly _setting: More,
+      protected readonly _stat: More,
+      protected _modules: More,
+      protected _pipes: More,
+      protected _helpers: More,
+   ) {
+      const { onPipeEnv, onPipeParse }: any = this;
+      this._newPipes = ObjIterate({ onPipeEnv, onPipeParse }, _ignoreNil);
+   }
+   protected setMeta(data: More) {
+      this.meta = data;
+   }
+   protected setHelpers(data: More) {
+      this._newHelpers = data;
+   }
+   private _updateModules(data: More) {
+      this._modules = Merge(this._modules, data);
+   }
+   private _updatePipes(data: More) {
+      this._pipes = Merge(this._pipes, data);
+   }
+   private _updateHelpers(data: More) {
+      this._helpers = Merge(this._helpers, data);
+   }
 }
 
 export class Cogenv {
-   private options: CogenvOptions = {};
-   private payload: More = {};
-   private modules: Module[] = [];
-   private pipes: Pipes = {
-      parse: [],
+   private _setting: CogenvOptions = {};
+   private _stat = {
+      instanced: false,
    };
+   private _pipes = {
+      parse: {},
+      env: {},
+   };
+   private _helpers: More = {};
+   private _modules: More = {};
+   private payload: More = {};
+   constructor() {
+      this._helpers = {
+         interpolate: {
+            module: '@root',
+            target: this.interpolate,
+         },
+         toValue: {
+            module: '@root',
+            target: this.toValue,
+         },
+      };
+   }
 
    public config(options?: CogenvOptions) {
-      this.options = Merge(defaultOptions, options);
+      this._setting = Merge(defaultOptions, options);
    }
-   public init(fn: Function) {
-      const { path, encoding } = this.options;
+   public init(fn?: Function) {
+      const { path, encoding } = this._setting;
 
       let cogenvPath = resolve(path);
 
@@ -282,7 +317,7 @@ export class Cogenv {
 
          this.parse(parsed);
 
-         isFunction(fn) && fn(this.options);
+         isFunction(fn) && fn(this._setting);
       } catch {}
    }
    private parse(source: string) {
@@ -382,26 +417,51 @@ export class Cogenv {
 
       return value;
    }
-   public use(moduleFn: Function) {
-      const token = uuid(25);
-      let { meta, pipes } = moduleFn({});
+   public use(target: any, options?: More) {
+      const obj = new target(
+         options,
+         this._setting,
+         this._stat,
+         this._modules,
+         this._pipes,
+         this._helpers,
+      );
 
-      meta['token'] = token;
+      isFunction(obj.onModuleRun) && obj.onModuleRun();
 
-      if (isObject(pipes)) {
-         if (isFunction(pipes.parse)) {
-            const pipeToken = uuid(25);
-            this.pipes.parse[pipeToken] = {
-               token: pipeToken,
-               module_token: token,
-            };
-            meta['pipes'] = {
-               parse: pipeToken,
+      const { _newHelpers, _newPipes, meta } = obj;
+
+      delete obj._newHelpers;
+      delete obj._newPipes;
+      const token = hash(meta);
+
+      this._modules[token] = {
+         token,
+         ...meta,
+      };
+
+      if (isObject(_newPipes)) {
+         for (const [key, value] of Object.entries(_newPipes)) {
+            if (/Env$/.test(key)) {
+               this._pipes.env[token] = value;
+            } else if (/Parse$/.test(key)) {
+               this._pipes.parse[token] = value;
+            }
+         }
+      }
+      if (isObject(_newHelpers)) {
+         for (const [key, value] of Object.entries(_newHelpers)) {
+            this._helpers[key] = {
+               module: token,
+               target: value,
             };
          }
       }
 
-      this.modules[token] = meta;
+      // Cogenv instanced correctly !
+      this._stat.instanced = true;
+
+      isFunction(obj.onModuleInit) && obj.onModuleInit();
    }
 }
 
@@ -409,20 +469,27 @@ const app = new Cogenv();
 
 app.config({
    logging: false,
-   // interpolatePrefix: '{%s}',
 });
 
-app.use((data: More, register: Function) => {
-   return {
-      data: data,
-      meta: {
+interface onCogenvInit {
+   onModuleRun(): void;
+   onModuleInit(): void;
+   onPipeEnv?(): void;
+   onPipeParse?(): void;
+   onPipeToValue?(): void;
+   onPipeInterpolate?(): void;
+}
+
+class CogenvObject extends CogenvBase implements onCogenvInit {
+   onModuleRun() {
+      this.setMeta({
          name: '@cogenv/object',
-         version: '20.4.6',
-      },
-      pipes: {
-         parse: () => {
-            // console.log('');
-         },
-      },
-   };
-});
+         version: '1.0.0',
+      });
+   }
+   onModuleInit() {}
+}
+
+app.init();
+
+// console.log(app);
