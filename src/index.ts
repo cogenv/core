@@ -6,7 +6,6 @@ import { resolve } from 'path';
 import { Merge } from 'merge-all-objects';
 import { isFunction, isString, isObject } from 'is-all-utils';
 import hash from 'object-hash';
-import { rexs } from './before';
 import { CogenvObject } from './object';
 import { CogenvTyped } from './typed';
 
@@ -15,13 +14,13 @@ export class Cogenv {
       path: '.env',
       logging: true,
       encoding: 'utf8',
-      interpolatePrefix: '{%s}',
    };
    private _stat = {
-      instanced: false,
+      initialized: false,
    };
    private _pipes = {
       parse: {},
+      parseMatch: {},
       env: {},
    };
    private _helpers: More = {};
@@ -54,26 +53,27 @@ export class Cogenv {
          this.parse(parsed);
 
          isFunction(fn) && fn(this._setting);
+         this._stat.initialized = true;
       } catch {}
 
       for (const obj of Object.values(this._modules)) {
-         const { moduleInit, sets } = obj;
-         sets.database(this._database);
-         moduleInit();
+         const { onModuleInit, _sets } = obj;
+         _sets.database(this._database);
+         onModuleInit();
       }
    }
    private parse(source: string) {
-      const lines = source.toString().split(rexs.newlinesMatch);
+      const lines = source.toString().split(/\n|\r|\r\n/);
 
       for (const [key, line] of Object.entries(lines)) {
          // For parse pipes
-         for (const pipeFn of Object.values<any>(this._pipes.parse)) {
-            pipeFn(Number(key), line);
+         for (const pipe of Object.values<any>(this._pipes.parse)) {
+            pipe.call(Number(key), line);
          }
 
          if (!line) continue;
 
-         const matchKey = line.match(rexs.parseline);
+         const matchKey = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
 
          if (matchKey) {
             const key = matchKey[1];
@@ -124,6 +124,9 @@ export class Cogenv {
          return source;
       };
    }
+   public env(key: any) {
+      //
+   }
    public use(target: any, options?: More) {
       const obj = new target(
          options,
@@ -137,19 +140,20 @@ export class Cogenv {
 
       isFunction(obj.onModuleRun) && obj.onModuleRun();
 
-      const { _newHelpers, _newPipes, meta } = obj;
+      const { _newHelpers, _newPipes, meta, onModuleInit, _sets } = obj;
 
       delete obj._newHelpers;
       delete obj._newPipes;
+      delete obj._sets;
+
       const _hash = hash(meta);
 
       this._modules[_hash] = {
-         _hash,
+         id: _hash,
+         _sets,
          ...meta,
-         moduleInit: obj.onModuleInit(),
-         sets: obj._sets,
+         onModuleInit,
       };
-      delete obj._sets;
 
       if (isObject(_newPipes)) {
          for (const [key, value] of Object.entries(_newPipes)) {
@@ -173,10 +177,12 @@ app.config({
    logging: false,
 });
 
-// app.use(CogenvTyped, {
-//    mode: 'auto',
-// });
+app.use(CogenvTyped, {
+   mode: 'auto',
+});
 
 app.use(CogenvObject);
 
-app.init();
+app.init(() => {
+   console.log('Configuration package is initialized !');
+});
