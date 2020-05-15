@@ -26,7 +26,7 @@ export class Cogenv {
    };
    private _helpers: More = {};
    private _modules: More = {};
-   private database: More = {};
+   private _database: More = {};
    constructor() {
       this._helpers = {
          interpolate: {
@@ -57,7 +57,9 @@ export class Cogenv {
       } catch {}
 
       for (const obj of Object.values(this._modules)) {
-         obj.moduleInit();
+         const { moduleInit, sets } = obj;
+         sets.database(this._database);
+         moduleInit();
       }
    }
    private parse(source: string) {
@@ -76,7 +78,7 @@ export class Cogenv {
          if (matchKey) {
             const key = matchKey[1];
             const value = matchKey[2];
-            this.database[key] = this.toValue()(value);
+            this._database[key] = this.toValue()(value);
          }
       }
    }
@@ -110,7 +112,7 @@ export class Cogenv {
                if (prefix === '\\') {
                   value = word.replace(/^\\{/, '{');
                } else {
-                  value = this.database[go];
+                  value = this._database[go];
                   value = this.interpolate()(value);
                }
 
@@ -125,6 +127,7 @@ export class Cogenv {
    public use(target: any, options?: More) {
       const obj = new target(
          options,
+         this._database,
          this._setting,
          this._stat,
          this._modules,
@@ -144,7 +147,9 @@ export class Cogenv {
          _hash,
          ...meta,
          moduleInit: obj.onModuleInit(),
+         sets: obj._sets,
       };
+      delete obj._sets;
 
       if (isObject(_newPipes)) {
          for (const [key, value] of Object.entries(_newPipes)) {
@@ -168,8 +173,10 @@ app.config({
    logging: false,
 });
 
-app.use(CogenvTyped, {
-   mode: 'auto',
-});
+// app.use(CogenvTyped, {
+//    mode: 'auto',
+// });
 
 app.use(CogenvObject);
+
+app.init();
