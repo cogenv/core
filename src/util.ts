@@ -1,6 +1,6 @@
 import { isArray, isUndefined } from 'is-all-utils';
 export const _ignoreNil = (v: any) => (isUndefined(v) ? '_ignoreNil' : v);
-export const ObjIterate = (obj: More, fn: Function) => {
+export const objIterate = (obj: More, fn: Function) => {
    let payload = {};
    for (const [key, value] of Object.entries(obj)) {
       let newKey = key;
@@ -11,8 +11,8 @@ export const ObjIterate = (obj: More, fn: Function) => {
       if (dataReturn === '_ignoreNil') {
          continue;
       } else if (isArray(dataReturn) && dataReturn.length === 2) {
-         newValue = dataReturn[1];
-         newKey = dataReturn[0];
+         newValue = dataReturn[0];
+         newKey = dataReturn[1];
       } else {
          newValue = dataReturn;
       }
