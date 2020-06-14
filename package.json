@@ -2,14 +2,14 @@
    "name": "@cogenv/core",
    "version": "1.0.9",
    "description": "Variable envirements",
-   "main": "dist/index.js",
-   "type": "dist/index.d.ts",
+   "main": "index.js",
+   "type": "index.d.ts",
    "scripts": {
       "dev": "yarn prebuild & tsc -w",
-      "dev:start": "nodemon dist/index.js",
+      "dev:start": "nodemon index.js",
       "build": "yarn prebuild & tsc",
       "build:start": "yarn build & yarn start",
-      "start": "node dist/index.js",
+      "start": "node index.js",
       "prebuild": "rimraf index.js && rimraf index.d.ts",
       "demo": "nodemon demo.js",
       "demo:start": "node demo.js"
