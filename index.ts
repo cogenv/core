@@ -1,9 +1,25 @@
-/// <reference path="../globals.d.ts" />
-/// <reference path="../types.d.ts" />
+/// <reference path="globals.d.ts" />
 
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { Merge } from 'merge-all-objects';
+
+interface ParseOptions {
+   types?: boolean;
+   objects?: boolean;
+   interpolatePrefix?: string;
+}
+export interface CogenvOptions extends ParseOptions {
+   path?: string;
+   encoding?: string;
+   logging?: boolean;
+}
+
+interface Stat extends CogenvOptions {
+   initialized: boolean;
+   version: number | string;
+   plugins?: More[];
+}
 
 // Variables Data !
 const defaultOptions: CogenvOptions = {
@@ -192,7 +208,7 @@ const Config = (options: CogenvOptions = {}) => {
          objects,
          interpolatePrefix,
       });
-      SetDatabase(parsed);
+      setDatabase(parsed);
       stat.initialized = true;
       Log('Variable envirements file ' + stat.path);
       Log('Initialized Correctly');
@@ -203,7 +219,7 @@ const Config = (options: CogenvOptions = {}) => {
    }
 };
 
-const SetDatabase = (data: More, more?: More) => {
+const setDatabase = (data: More, more?: More) => {
    database = Merge(database, data, more);
    cog.env = Merge(cog.env, database, more);
 };
@@ -221,7 +237,7 @@ const Use = <T>(fn: Function, options?: T | Function) => {
    };
    !options && (options = register);
    const data = fn(database, options, register);
-   data && SetDatabase(data, plugin?.mergeOptions);
+   data && setDatabase(data, plugin?.mergeOptions);
    Log('Started Correctly', plugin?.name);
 };
 
