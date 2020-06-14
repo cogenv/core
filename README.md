@@ -1,179 +1,28 @@
 # @cogenv/core
 
-**@cogenv/core** is an environment variable manager, and this package belongs to its main `cogenv` package, but if you want to use only this package, here below you will have the documentation, and if you are looking for something more robust and complete, we recommend using the main `cogenv` package.
+@cogenv/core is an environment variable manager, and this package belongs to its main [cogenv](http://github.com/yonicalsin/cogenv) package
+
+<a href="https://github.com/yonicalsin/@cogenv/core"><img src="https://img.shields.io/spiget/stars/1000?color=brightgreen&label=Star&logo=github" /></a>
+<a href="https://www.npmjs.com/@cogenv/core" target="_blank">
+<img src="https://img.shields.io/npm/v/@cogenv/core" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/@cogenv/core" target="_blank">
+<img src="https://img.shields.io/npm/l/@cogenv/core" alt="Package License" /></a>
+<a href="https://www.npmjs.com/@cogenv/core" target="_blank">
+<img src="https://img.shields.io/npm/dm/@cogenv/core" alt="NPM Downloads" /></a>
+<a href="https://github.com/yonicalsin/@cogenv/core" target="_blank">
+<img src="https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_95.svg" alt="Coverage" /></a>
+<a href="https://github.com/yonicalsin/@cogenv/core"><img src="https://img.shields.io/badge/Github%20Page-@cogenv/core-yellow?style=flat-square&logo=github" /></a>
+<a href="https://github.com/yonicalsin"><img src="https://img.shields.io/badge/Author-Yoni%20Calsin-blueviolet?style=flat-square&logo=appveyor" /></a>
+<a href="https://twitter.com/yonicalsin" target="_blank">
+<img src="https://img.shields.io/twitter/follow/yonicalsin.svg?style=social&label=Follow"></a>
 
 ## 📦 Installation
 
 ```bash
+# For npm
 npm i --save @cogenv/core
-```
-
-## ▶️ Usage
-
-Creó el archivo `.cogenv` o `.env` !
-Esto se puede personalizar mediante la opción de `path` que requiere la función _Config()_
-
-```bash
-# Application Data !
-APP_NAME = Application
-APP_PORT = 3000
-APP_URL = http://website.com
-```
-
-```js
-import { Config } from '@cogenv/core';
-
-// Called function !
-Config({
-   /* Here are the options that require this function */
-});
-
-// Log !
-const data = cogenv.env.APP_NAME;
-console.log(data);
-/* Return:
-{
-   APP_NAME: "Application",
-   APP_PORT: "3000",
-   APP_URL: "http://website.com"
-}
-*/
-```
-
-If you want to add types to the data, we recommend using the main `cogenv` package.
-
-## Options
-
-| name              | type    | default |
-| ----------------- | ------- | ------- |
-| path              | string  | `.env`  |
-| encoding          | string  | `utf8`  |
-| types             | boolean | `false` |
-| objects           | boolean | `false` |
-| interpolatePrefix | string  | `$`     |
-| logging           | boolean | `true`  |
-
-### Customize path
-
-To customize the environment variable file it is very easy with `@cogenv/core`, by default it is _`.env`_.
-
-```js
-Config({
-   path: '.cogenv',
-});
-```
-
-### Interpolate or expand
-
-To expand the variables between them, it is as follows !
-
-To interpolate it is used the following **`${`variable_name`}`**
-
-```bash
-# Application Data !
-APP_NAME = Application
-APP_PORT = 3000
-APP_URL = http://website.com:${APP_PORT}
-# Return: http://website.com:3000
-```
-
-To interpolate we have some options !
-
-| name              | type     | default |
-| ----------------- | -------- | ------- |
-| interpolatePrefix | `string` | `$`     |
-
-Example:
-
-```js
-Config({
-   interpolatePrefix: '%', // %{variable_name}
-});
-```
-
-In the environment variables file it would look like this !
-
-```bash
-# Application Data !
-APP_NAME = Application
-APP_PORT = 3000
-APP_URL = http://website.com:%{APP_PORT}
-# Return: http://website.com:3000
-```
-
-## Utilidades
-
--  `GetEnvOne` o `env`: Sirve para obtener un variable de entorno !
--  `GetStat`: Retorna las options, variables, y plugins agregados !
-
-### GetEnvOne or Get
-
-```js
-import { GetEnvOne, env } from '@cogenv/core';
-//  GetEnvOne or env
-
-const appName = GetEnvOne('APP_NAME');
-
-const appName2 = env('APP_NAME');
-// Return to: "Application"
-```
-
-### GetStat
-
-```ts
-const stat = Cogenv.GetStat();
-
-/*
-{
-   path: '.env',
-   initialized: false,
-   encoding: 'utf8',
-   interpolatePrefix: '$',
-   types: false,
-   objects: false,
-   logging: false,
-   version: '1.0.9',
-   plugins: [ ]
-}
-*/
-```
-
-## Typescript
-
-Para utilizar con typescript, tendremos que agregar el tipado global
-
-> Primero crearemos `globals.d.ts` para agregar la variable `cog` como global !
-
-Despues de haber creado el archivo, copié el siguente codigo !
-
-```ts
-interface More {
-   [key: string]: any;
-}
-interface Cogenv extends More {
-   // Enter to here your types
-   PORT?: number;
-   NODE_ENV?: string;
-   _types?: More;
-   _objects?: More;
-}
-
-interface Cog extends NodeJS.Process {
-   env: Cogenv;
-}
-
-declare var cog: Cog;
-```
-
-## Plugin
-
-Para poder utilizar o agregar un plugin es muy sencillo, unicamente tendremos que utilizar la funcion `Use` que debe importar !
-
-```ts
-const Cogenv = require('@cogenv/core');
-const pluginFunction = require('plugin-package-name');
-
-Cogenv.Use(pluginFunction);
+# For yarn
+yarn add @cogenv/core
 ```
 
 ## ⭐ Support for
@@ -182,8 +31,10 @@ Cogenv.Use(pluginFunction);
 
 ## 🎩 Stay in touch
 
--  Author [Yoni Calsin](https://github.com/yoicalsin)
--  Twitter [Yoni Calsin](https://twitter.com/yoicalsin)
+-  Github [@yonicalsin](https://github.com/yonicalsin)
+-  Twitter [@yonicalsin](https://twitter.com/yonicalsin)
+-  Instagram [@yoni_calsin](https://instagram.com/yoni_calsin)
+-  Medium [@yonicalsin](https://medium.com/yonicalsin)
 
 ## Contributors
 
