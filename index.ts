@@ -1,13 +1,9 @@
-/// <reference path="../globals.d.ts" />
+/// <reference path="./globals.d.ts" />
 
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { Merge } from 'merge-all-objects';
 
-// Interfaces
-declare var global: {
-   cog: NodeJS.Process;
-};
 interface ParseOptions {
    types?: boolean;
    objects?: boolean;
@@ -19,19 +15,10 @@ export interface CogenvOptions extends ParseOptions {
    logging?: boolean;
 }
 
-interface More {
-   [key: string]: any;
-}
-
-interface Plugin {
-   name: string;
-   version: string;
-}
-
 interface Stat extends CogenvOptions {
    initialized: boolean;
    version: number | string;
-   plugins?: Plugin[];
+   plugins?: More[];
 }
 
 // Variables Data !
@@ -127,7 +114,7 @@ const Parse = (
       var matches: any[] = source.match(rexs.interpolate()) || [];
 
       if (matches.length > 0) {
-         return matches.reduce(function(newEnv, match) {
+         return matches.reduce(function (newEnv, match) {
             var parts = match.match(rexs.interpolateParts()) || [];
             var prefix = parts[1];
 
@@ -213,13 +200,15 @@ const Config = (options: CogenvOptions = {}) => {
    let cogenvPath = resolve(cog.cwd(), path);
 
    try {
-      let parsed: string | More = readFileSync(cogenvPath, { encoding });
-      parsed = Parse(parsed, {
+      let parsed: string | More = readFileSync(cogenvPath, {
+         encoding: encoding as any,
+      });
+      parsed = Parse(parsed as any, {
          types,
          objects,
          interpolatePrefix,
       });
-      SetDatabase(parsed);
+      setDatabase(parsed);
       stat.initialized = true;
       Log('Variable envirements file ' + stat.path);
       Log('Initialized Correctly');
@@ -230,17 +219,17 @@ const Config = (options: CogenvOptions = {}) => {
    }
 };
 
-const SetDatabase = (data: More) => {
-   database = Merge(database, data);
-   cog.env = Merge(cog.env, database);
+const setDatabase = (data: More, more?: More) => {
+   database = Merge(database, data, more);
+   cog.env = Merge(cog.env, database, more);
 };
 
 // Getters
-const GetStat = () => stat;
-const GetEnvOne = (key: string) => database[key] || cog.env[key];
+const envStat = () => stat;
+const env = (key: string) => database[key] || cog.env[key];
 
 const Use = <T>(fn: Function, options?: T | Function) => {
-   let plugin: Plugin;
+   let plugin: More;
    const register = (data: Plugin) => {
       stat.plugins.push(data);
       plugin = data;
@@ -248,9 +237,9 @@ const Use = <T>(fn: Function, options?: T | Function) => {
    };
    !options && (options = register);
    const data = fn(database, options, register);
-   data && SetDatabase(data);
-   Log('Started Correctly', plugin.name);
+   data && setDatabase(data, plugin?.mergeOptions);
+   Log('Started Correctly', plugin?.name);
 };
 
-export { Parse, Config, Use, GetStat, GetEnvOne, GetEnvOne as env };
+export { Parse, Config, Use, envStat, env };
 export default Config;
