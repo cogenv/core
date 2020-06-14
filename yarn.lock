@@ -231,13 +231,6 @@ dot-prop@^5.2.0:
   dependencies:
     is-obj "^2.0.0"
 
-dotfast@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/dotfast/-/dotfast-1.0.3.tgz#a1aab7e029eaf13b3ff9eb8cff7412017b0ddfd4"
-  integrity sha512-5HEGhvW/caPL4IEr9gRmvCsMpda+QG4yrSCClds7BJLQ0ZJ0Qi1UG6WHTC+sW5fAtKps3abvA/5nIoteQSW+gg==
-  dependencies:
-    is-all-utils "^1.0.4"
-
 duplexer3@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"
@@ -397,7 +390,7 @@ ini@^1.3.5, ini@~1.3.0:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
   integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
 
-is-all-utils@^1.0.3, is-all-utils@^1.0.4:
+is-all-utils@^1.0.3:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/is-all-utils/-/is-all-utils-1.0.5.tgz#69445f954726ece007b33d115e1919c4ba01d753"
   integrity sha512-IH5qKBZkMs3CQrgmTY0itUmggk6rEFV94bX7/g8J8lA2oEaGl6IQ0Vzs9DDzQG8ix5Q0Uc9FTdwF1K5gHPnCsw==
@@ -512,10 +505,10 @@ make-dir@^3.0.0:
   dependencies:
     semver "^6.0.0"
 
-merge-all-objects@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/merge-all-objects/-/merge-all-objects-1.0.1.tgz#421d79e6fa0757eed68fadd22bdbe565605476cb"
-  integrity sha512-+VsF/ONFg6nQoPSI2SyrBRBPs8vnunpyl64/9W67G5YuJ7WltmGA17w90DW1uLpZ/SAWRlykxcIwAtOM2nIs7A==
+merge-all-objects@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/merge-all-objects/-/merge-all-objects-1.0.4.tgz#a004c8cb630fb25c6f20fc7d091a024511fd2010"
+  integrity sha512-MVosQ/Svk1UpN+lTVHBfEYAZgfvOQkV4fzNIps/OtqT7TV0kjGZ3DN8SZRsu7eY7jH+RmdiRHAwPn/1HfLCyxA==
   dependencies:
     is-all-utils "^1.0.3"
 
