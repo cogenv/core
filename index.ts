@@ -1,4 +1,4 @@
-/// <reference path="globals.d.ts" />
+/// <reference path="./globals.d.ts" />
 
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
