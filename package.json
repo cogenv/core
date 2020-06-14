@@ -21,7 +21,7 @@
       "rimraf": "^3.0.2"
    },
    "dependencies": {
-      "merge-all-objects": "^1.0.1"
+      "merge-all-objects": "^1.0.4"
    },
    "repository": {
       "type": "git",
