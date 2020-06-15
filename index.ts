@@ -62,6 +62,11 @@ const rexs = {
       );
    },
 };
+// Sended stat to plugin
+stat = {
+   ...stat,
+   rexs,
+};
 
 // Designed the variables a value
 global.cog = process;
@@ -240,7 +245,7 @@ const Use = <T>(fn: Function, options?: T | Function) => {
       Log('Registered...', data.name);
    };
    !options && (options = register);
-   const data = fn(database, options, register);
+   const data = fn(database, options, register, stat);
    data && setDatabase(data, plugin?.mergeOptions);
    Log('Started Correctly', plugin?.name);
 };
