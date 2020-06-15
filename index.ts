@@ -3,6 +3,7 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { Merge } from 'merge-all-objects';
+import dotfast from 'dotfast';
 
 interface ParseOptions {
    types?: boolean;
@@ -226,7 +227,10 @@ const setDatabase = (data: More, more?: More) => {
 
 // Getters
 const envStat = () => stat;
-const env = (key: string) => database[key] || cog.env[key];
+const env = (paths: string | string[], defaultValue: any) =>
+   dotfast(database, paths, defaultValue) ||
+   dotfast(cog.env, paths, defaultValue) ||
+   dotfast(process.env, paths, defaultValue);
 
 const Use = <T>(fn: Function, options?: T | Function) => {
    let plugin: More;
