@@ -11,6 +11,7 @@
 .prettierrc.js
 changelog.config.js
 tsconfig.json
+index.ts
 
 # Developments
 demo.js
