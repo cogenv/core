@@ -227,7 +227,7 @@ const setDatabase = (data: More, more?: More) => {
 
 // Getters
 const envStat = () => stat;
-const env = (paths: string | string[] | More, defaultValue: any) =>
+const env = (paths: string | string[] | More, defaultValue?: any) =>
    dotfast(database, paths, defaultValue) ||
    dotfast(cog.env, paths, defaultValue) ||
    dotfast(process.env, paths, defaultValue);
