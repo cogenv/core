@@ -1,6 +1,6 @@
 {
    "name": "@cogenv/core",
-   "version": "1.1.1",
+   "version": "1.1.2",
    "description": "Variable envirements",
    "main": "index.js",
    "type": "index.d.ts",
@@ -21,6 +21,7 @@
       "rimraf": "^3.0.2"
    },
    "dependencies": {
+      "dotfast": "^1.0.3",
       "merge-all-objects": "^1.0.4"
    },
    "repository": {

@@ -3,6 +3,7 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { Merge } from 'merge-all-objects';
+import dotfast from 'dotfast';
 
 interface ParseOptions {
    types?: boolean;
@@ -168,11 +169,11 @@ const Parse = (
       }
 
       if (matchkey != null) {
-         let [z, key, value] = matchkey;
+         let [, key, value] = matchkey;
          value = toValue(value);
          payload[key] = value;
       } else if (isTypeKey) {
-         let [z, key, type, value] = isTypeKey;
+         let [, key, type, value] = isTypeKey;
          value = toValue(value);
          payload[key] = value;
          if (types) {
@@ -182,7 +183,7 @@ const Parse = (
          }
       } else if (isObjectKey && objects) {
          payload['_objects'] = Merge(payload._objects || {});
-         let [z, key, value] = matchObjectKey;
+         let [, key, value] = matchObjectKey;
          value = toValue(value);
          payload['_objects'][key] = value;
       }
@@ -226,7 +227,10 @@ const setDatabase = (data: More, more?: More) => {
 
 // Getters
 const envStat = () => stat;
-const env = (key: string) => database[key] || cog.env[key];
+const env = (paths: string | string[], defaultValue: any) =>
+   dotfast(database, paths, defaultValue) ||
+   dotfast(cog.env, paths, defaultValue) ||
+   dotfast(process.env, paths, defaultValue);
 
 const Use = <T>(fn: Function, options?: T | Function) => {
    let plugin: More;
